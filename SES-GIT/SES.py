@@ -24,13 +24,43 @@ def send_otp_email(recipient_email, otp):
     subject = "Your One-Time Password (OTP)"
     body_text = f"Your OTP is: {otp}\nIt is valid for 5 minutes."
     body_html = f"""<html>
-    <head></head>
+    <head>
+      <style>
+        .otp-box {{
+          font-family: Arial, sans-serif;
+          background-color: #f9f9f9;
+          padding: 20px;
+          border-radius: 10px;
+          border: 1px solid #e0e0e0;
+          max-width: 400px;
+          margin: auto;
+        }}
+        .otp-code {{
+          font-size: 24px;
+          font-weight: bold;
+          color: #2d3748;
+          margin: 20px 0;
+        }}
+        .footer {{
+          font-size: 12px;
+          color: #888888;
+          margin-top: 20px;
+        }}
+      </style>
+    </head>
     <body>
-      <h2>Your One-Time Password (OTP)</h2>
-      <p>Your OTP is: <strong>{otp}</strong></p>
-      <p>This OTP is valid for 5 minutes.</p>
+      <div class="otp-box">
+        <h2>🔐 Your One-Time Password (OTP)</h2>
+        <p>Please use the following OTP to complete your verification:</p>
+        <div class="otp-code">{otp}</div>
+        <p>This OTP is valid for <strong>5 minutes</strong>.</p>
+        <div class="footer">
+          If you did not request this OTP, please ignore this email.
+        </div>
+      </div>
     </body>
     </html>"""
+
 
     client = boto3.client("ses", region_name=AWS_REGION)
 
@@ -84,7 +114,7 @@ def verify_otp(email, user_input_otp):
 
 def main():
     print("=== AWS SES OTP Verification App ===")
-    recipient_email = input("Enter your email: ").strip()
+    recipient_email = "sahil.patra@teleglobals.com"
 
     while True:
         otp = generate_otp()
@@ -101,15 +131,19 @@ def main():
 
             if result == "✅ OTP verified successfully!":
                 print(result)
-                return  # Exit program after success
+                return  # Exit the program
 
             elif result == "❌ OTP has expired. Please request a new one.":
                 print(result)
-                break  # Resend new OTP by breaking inner loop
+                choice = input("🔁 Do you want to resend a new OTP? (yes/no): ").strip().lower()
+                if choice == "yes":
+                    break  # Break inner loop to resend OTP
+                else:
+                    print("👋 Exiting OTP verification.")
+                    return
 
             else:
-                print(result)
-                # Continue asking again until correct or expired
+                print(result)  # Invalid OTP, keep retrying
 
 
 
