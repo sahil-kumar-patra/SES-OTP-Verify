@@ -86,15 +86,31 @@ def main():
     print("=== AWS SES OTP Verification App ===")
     recipient_email = input("Enter your email: ").strip()
 
-    otp = generate_otp()
-    if send_otp_email(recipient_email, otp):
+    while True:
+        otp = generate_otp()
+        if not send_otp_email(recipient_email, otp):
+            print("❌ Failed to send OTP. Please check your SES setup and try again.")
+            return
+
         store_otp(recipient_email, otp)
         print("\n📧 An OTP has been sent to your email.")
-        user_otp = input("Enter the OTP: ").strip()
-        result = verify_otp(recipient_email, user_otp)
-        print(result)
-    else:
-        print("❌ Failed to send OTP. Please check your SES setup and try again.")
+
+        while True:
+            user_otp = input("Enter the OTP: ").strip()
+            result = verify_otp(recipient_email, user_otp)
+
+            if result == "✅ OTP verified successfully!":
+                print(result)
+                return  # Exit program after success
+
+            elif result == "❌ OTP has expired. Please request a new one.":
+                print(result)
+                break  # Resend new OTP by breaking inner loop
+
+            else:
+                print(result)
+                # Continue asking again until correct or expired
+
 
 
 if __name__ == "__main__":
