@@ -11,7 +11,7 @@ otp_store = {}
 
 # AWS SES Configuration (region)
 AWS_REGION = "ap-southeast-1"  # Update this if needed
-SENDER = "sahilkumar107607kxip@gmail.com"  # Must be pre-verified in SES
+SENDER = "sahil.patra@teleglobals.com"  # Must be pre-verified in SES
 
 
 def generate_otp():
@@ -114,7 +114,7 @@ def verify_otp(email, user_input_otp):
 
 def main():
     print("=== AWS SES OTP Verification App ===")
-    recipient_email = "sahil.patra@teleglobals.com"
+    recipient_email = "sahilkumar107607kxip@gmail.com"
 
     while True:
         otp = generate_otp()
