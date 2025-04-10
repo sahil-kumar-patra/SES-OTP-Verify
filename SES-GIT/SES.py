@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import boto3 
 import os
 import random
@@ -6,12 +8,17 @@ from datetime import datetime, timedelta
 from botocore.exceptions import BotoCoreError, ClientError
 from datetime import timezone
 
+# Load credentials from environment (no need to manually pass to boto3)
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.environ.get("AWS_REGION", "ap-southeast-1")
+SENDER = os.environ.get("SENDER_EMAIL")  # Must be pre-verified in SES
+RECEIVER = os.environ.get("RECEIVER_EMAIL") # Must be pre-verified in SES
+
 # Global in-memory OTP store
 otp_store = {}
 
-# AWS SES Configuration (region)
-AWS_REGION = "ap-southeast-1"  # Update this if needed
-SENDER = "sahil.patra@teleglobals.com"  # Must be pre-verified in SES
+client = boto3.client("ses", region_name=AWS_REGION)
 
 
 def generate_otp():
@@ -61,8 +68,6 @@ def send_otp_email(recipient_email, otp):
     </body>
     </html>"""
 
-
-    client = boto3.client("ses", region_name=AWS_REGION)
 
     try:
         response = client.send_email(
@@ -114,7 +119,7 @@ def verify_otp(email, user_input_otp):
 
 def main():
     print("=== AWS SES OTP Verification App ===")
-    recipient_email = "sahilkumar107607kxip@gmail.com"
+    recipient_email = RECEIVER
 
     while True:
         otp = generate_otp()
@@ -144,7 +149,6 @@ def main():
 
             else:
                 print(result)  # Invalid OTP, keep retrying
-
 
 
 if __name__ == "__main__":
